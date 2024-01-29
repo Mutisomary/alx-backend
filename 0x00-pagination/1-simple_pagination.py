@@ -24,17 +24,20 @@ class Server:
 
         return self.__dataset
 
-    def index_range(page: int, page_size: int) -> Tuple[int, int]:
-        """return a tuple containing start and end index corresponding to a page"""
-        start_index = (page - 1) * page_size
-        end_index = start_index + page_size
-        return start_index, end_index
-
     def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
         """
         Return list of baby names or assert error
         """
         assert(isinstance(page, int) and isinstance(page_size, int))
         assert(page > 0 and page_size > 0)
-        [start_index, end_index] = index_range(page, page_size)
-        return self.dataset()[start_index:end_index]
+        [start, end] = index_range(page, page_size)
+        return self.dataset()[start: end]
+
+
+def index_range(page: int, page_size: int) -> Tuple[int, int]:
+    """
+    Return a tuple of size two containing a start index and an end
+    index corresponding to the range of indexes to return in a list
+    for those particular pagination parameters.
+    """
+    return ((page - 1) * page_size, page * page_size)
