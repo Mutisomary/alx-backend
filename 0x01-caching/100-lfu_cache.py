@@ -1,40 +1,51 @@
-#!/usr/bin/python3
-""" Python caching systems """
-from base_caching import BaseCaching
-from collections import OrderedDict
+#!/usr/bin/env python3
+"""
+This module contains a LFUCache class that inherits from BaseCaching.
+"""
 
+from base_caching import BaseCaching
+from collections import Counter
 
 class LFUCache(BaseCaching):
-    """ LFU caching system
     """
+    LFUCache class. This caching system uses a LFU alg
+    """
+
     def __init__(self):
-        """ Initialize class instance. """
+        """
+        Initialize the class instance.
+        """
         super().__init__()
-        self.cache_data = OrderedDict()
-        self.mru = ""
+        self.keys = []
+        self.counts = Counter()
 
     def put(self, key, item):
-        """ Add an item in the cache
         """
-        if key and item:
-            if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-                if key in self.cache_data:
-                    self.cache_data.update({key: item})
-                    self.mru = key
-                else:
-                    # discard the most recently used item
-                    discarded = self.mru
-                    del self.cache_data[discarded]
-                    print("DISCARD: {}".format(discarded))
-                    self.cache_data[key] = item
-                    self.mru = key
-            else:
-                self.cache_data[key] = item
-                self.mru = key
+        Assign to the dictionary self.cache_data the item value for the key
+        """
+        if key is None or item is None:
+            return
+        if key not in self.keys:
+            if len(self.keys) >= BaseCaching.MAX_ITEMS:
+                least_common = self.counts.most_common()[:-2:-1]
+                if len(least_common) > 1:
+                    least_common = [item for item in least_common if item[1] == least_common[0][1]]
+                    least_common = sorted(least_common, key=lambda x: self.keys.index(x[0]))
+                discarded_key = least_common[0][0]
+                self.keys.remove(discarded_key)
+                del self.cache_data[discarded_key]
+                del self.counts[discarded_key]
+                print('DISCARD: {}'.format(discarded_key))
+            self.keys.append(key)
+        self.cache_data[key] = item
+        self.counts[key] += 1
 
     def get(self, key):
-        """ Get an item by key
         """
-        if key in self.cache_data:
-            self.mru = key
-            return self.cache_data[key]
+        Return the value in self.cache_data linked to key.
+        """
+        if key is None or key not in self.cache_data:
+            return None
+        self.counts[key] += 1
+        return self.cache_data[key]
+
