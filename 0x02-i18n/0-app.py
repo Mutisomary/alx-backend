@@ -9,10 +9,8 @@ app = Flask(__name__)
 @app.route('/')
 def home():
     """the home page function"""
-    title = 'Welcome to Holberton'
-    text = 'Hello world'
-    return render_template('index.html', title=title, text=text)
+    return render_template('index.html')
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port="5000", host="0.0.0.0", debug=True)
